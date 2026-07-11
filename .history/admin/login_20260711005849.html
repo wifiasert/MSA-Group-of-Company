@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MSA Group of Company | Admin Login</title>
+  <meta name="description" content="Admin login for the MSA Group of Company private operations area.">
+  <meta name="theme-color" content="#060816">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="loader" id="loader"><span>MSA</span></div>
+  <main id="main">
+    <section class="section" style="min-height:100vh;display:grid;place-items:center;">
+      <div class="form-card" style="max-width:460px;width:100%;">
+        <p class="eyebrow">Private access</p>
+        <h1>Secure admin sign in</h1>
+        <p>Use this page to access the private admin area.</p>
+        <form data-form="admin-login">
+          <label>Email<input required type="email" name="email"></label>
+          <label>Password<input required type="password" name="password"></label>
+          <button class="primary-button" type="submit">Sign in</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

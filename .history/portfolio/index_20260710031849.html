@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MSA Group of Company | Portfolio</title>
+  <meta name="description" content="A showcase of projects, creative works, software launches, and digital experiences delivered by MSA Group of Company.">
+  <meta name="theme-color" content="#060816">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="loader" id="loader"><span>MSA</span></div>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav-shell" aria-label="Primary navigation">
+      <a class="brand" href="/" aria-label="MSA Group of Company home"><img class="brand-logo" src="/images/logo%20n%20copy.jpg" alt="MSA Group of Company logo"><span class="brand-text">MSA Group of Company</span></a>
+      <button class="icon-button nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+      <div class="nav-links" id="navLinks">
+        <div class="nav-item"><a href="/about/">About</a></div>
+        <div class="nav-item"><a href="/music/">Music</a><div class="submenu"><a href="/music/record-label/">Record Label</a><a href="/music/distribution/">Distribution</a><a href="/music/publishing/">Publishing</a><a href="/music/artist-services/">Artist Services</a></div></div>
+        <div class="nav-item"><a href="/software/">Software</a><div class="submenu"><a href="/software/available/">Available</a><a href="/software/store/">Store</a><a href="/software/coming-soon/">Coming Soon</a></div></div>
+        <div class="nav-item"><a href="/services/">Services</a></div>
+        <div class="nav-item"><a href="/store/">Store</a></div>
+        <div class="nav-item"><a href="/portfolio/">Portfolio</a></div>
+        <div class="nav-item"><a href="/blog/">Blog</a></div>
+        <div class="nav-item"><a href="/support/">Support</a></div>
+        <div class="nav-item"><a href="/contact/">Contact</a></div>
+      </div>
+      <div class="nav-actions"><button class="icon-button" id="searchOpen" type="button" aria-label="Open search">⌕</button><button class="icon-button" id="themeToggle" type="button" aria-label="Toggle theme">◐</button><a class="pill-button" href="/support/">Support</a></div>
+    </nav>
+  </header>
+  <main id="main">
+    <section class="page-hero reveal"><div class="hero-content"><p class="eyebrow">MSA Group of Company</p><h1>Selected work across music, software, branding, and digital products.</h1><p class="hero-copy">Each project is shaped with a premium approach focused on performance, clarity, and long-term growth.</p></div></section>
+    <section class="section reveal"><div class="card-grid">
+      <article class="glass-card"><h3>Artist Platform Launch</h3><p>Launch website, release strategy, and streaming-ready assets for an independent artist release.</p><a class="inline-link" href="/contact/">Discuss a similar project</a></article>
+      <article class="glass-card"><h3>Creator Dashboard</h3><p>Custom admin experience with analytics, reporting, downloads, and account tools for a digital brand.</p><a class="inline-link" href="/contact/">Discuss a similar project</a></article>
+      <article class="glass-card"><h3>Brand Refresh</h3><p>A polished visual identity and web experience for a modern media company.</p><a class="inline-link" href="/contact/">Discuss a similar project</a></article>
+    </div></section>
+  </main>
+  <footer class="site-footer"><div><a class="brand" href="/" aria-label="MSA Group of Company home"><img class="brand-logo" src="/images/logo%20n%20copy.jpg" alt="MSA Group of Company logo"><span class="brand-text">MSA Group of Company</span></a><p>Music, software, creative production, digital commerce, and technology solutions.</p></div><form class="newsletter" data-form="newsletter"><label>Newsletter<input required type="email" placeholder="Email address"></label><button class="secondary-button" type="submit">Subscribe</button></form></footer>
+  <dialog class="modal" id="searchModal"><button class="icon-button close-modal" data-close type="button">×</button><h2>Search MSA Group of Company</h2><input id="siteSearch" placeholder="Search services, products, support, blog..."><div id="searchResults" class="search-results"></div></dialog>
+  <div class="chatbot" id="chatbot"><button class="chat-toggle" id="chatToggle" type="button">AI</button><div class="chat-window" aria-live="polite"><strong>MSA AI Support</strong><div id="chatLog"><p>Ask about software, music submissions, orders, or services.</p></div><form id="chatForm"><input id="chatInput" placeholder="Type a question..."><button type="submit">Send</button></form></div></div>
+  <div class="cookie" id="cookieBanner"><p>MSA Group of Company uses cookies for analytics, preferences, and better shopping experiences.</p><button class="secondary-button" id="cookieAccept" type="button">Accept</button></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

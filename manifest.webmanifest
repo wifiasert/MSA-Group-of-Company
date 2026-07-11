@@ -1,0 +1,17 @@
+{
+  "name": "MSA Group of Company",
+  "short_name": "MSA",
+  "description": "Music, software, creative agency, and technology solutions platform.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050713",
+  "theme_color": "#050713",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
