@@ -1,0 +1,5 @@
+Contact: mailto:hello@msa.company
+Encryption: https://www.ssllabs.com/ssltest/analyze.html?d=msagroupofcompanies.online
+Acknowledgements: security@msa.company
+Policy: https://msagroupofcompanies.online/privacy-policy/
+Hiring: jobs@msa.company
