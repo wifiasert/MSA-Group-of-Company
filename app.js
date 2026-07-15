@@ -38,7 +38,9 @@ function resolveSitePath(targetPath) {
 
   const up = currentSegments.length - common;
   const down = targetSegments.slice(common).join("/");
-  const relative = `${"../".repeat(up)}${down}${down ? "/" : ""}`;
+  const isFilePath = /\.[^/]+$/.test(targetSegments[targetSegments.length - 1]);
+  const needsTrailingSlash = !isFilePath && (targetPath.endsWith("/") || !targetPath.includes("."));
+  const relative = `${"../".repeat(up)}${down}${down && needsTrailingSlash ? "/" : ""}`;
   return relative || "./";
 }
 
