@@ -224,7 +224,35 @@ body.light .site-header { background: rgba(244, 249, 255, 0.82); }
 .section-heading { max-width: 820px; margin-bottom: 1.7rem; }
 .section-heading h2 { font-size: clamp(1.6rem, 3vw, 2.35rem); }
 .card-grid, .content-grid, .detail-grid, .hero-grid { display: grid; gap: 1rem; }
+/* Desktop: preserve three-column layout for visual parity */
 .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* Responsive Services layout: use auto-fit/minmax and dedicated breakpoints */
+@media (max-width: 1024px) {
+  /* Allow the grid to adapt to available space (2 columns where possible) */
+  .card-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+}
+
+@media (max-width: 790px) {
+  /* Tablet and small laptop: single column for reliable touch sizing */
+  .card-grid { grid-template-columns: 1fr !important; }
+  .stack { display: block; }
+  .stack > .glass-card { width: 100%; }
+  .card-grid article { width: 100%; min-width: 0; }
+}
+
+@media (max-width: 768px) {
+  /* Keep single-column behavior and ensure buttons resize */
+  .card-grid { grid-template-columns: 1fr !important; }
+  .card-grid a.secondary-button { min-width: auto; }
+}
+
+@media (max-width: 480px) {
+  /* Mobile: comfortable spacing and touch targets */
+  .card-grid { gap: .85rem; grid-template-columns: 1fr !important; }
+  .card-grid article { padding: .9rem; }
+  .card-grid a.secondary-button { width: auto; min-width: 0; padding: .6rem .85rem; }
+}
 .content-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .hero-grid { grid-template-columns: 1.2fr .8fr; align-items: start; }
