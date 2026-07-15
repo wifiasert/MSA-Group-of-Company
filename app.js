@@ -55,6 +55,7 @@ function renderServices() {
   if (!target) return;
   target.innerHTML = services.map(([name, description, price]) => `
     <article class="glass-card">
+      <span class="chip">Premium</span>
       <h3>${name}</h3>
       <p>${description}</p>
       <p><strong>Starting at:</strong> ${price}</p>
@@ -131,13 +132,62 @@ function init() {
   setupSearch();
 
   const loader = $("#loader");
-  if (loader) setTimeout(() => loader.classList.add("hidden"), 650);
+  if (loader) {
+    const hideLoader = () => {
+      document.body.classList.add('loaded');
+      loader.classList.add('hidden');
+    };
+    if (document.readyState === 'complete') {
+      setTimeout(hideLoader, 120);
+    } else {
+      window.addEventListener('load', () => setTimeout(hideLoader, 180));
+      // Safety fallback in case 'load' never fires
+      setTimeout(() => { if (!document.body.classList.contains('loaded')) hideLoader(); }, 3000);
+    }
+  } else {
+    document.body.classList.add('loaded');
+  }
+
+  // Inject reliable SVG icons to replace broken character glyphs
+  const svgMenu = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const svgSearch = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const svgMoon = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const svgSun = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const svgClose = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  const setThemeIcon = (button) => {
+    if (!button) return;
+    const isLight = document.body.classList.contains('light');
+    button.innerHTML = isLight ? svgSun : svgMoon;
+    button.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+    button.setAttribute('aria-pressed', String(isLight));
+  };
+
+  const annotateIconButton = (button, iconHtml, fallbackText) => {
+    if (!button) return;
+    button.dataset.fallback = fallbackText || button.textContent.trim();
+    button.innerHTML = iconHtml;
+    button.classList.add('has-icon');
+  };
 
   if (localStorage.getItem("msa-theme") === "light") document.body.classList.add("light");
   if (localStorage.getItem("msa-cookies") === "accepted") {
     const banner = $("#cookieBanner");
     if (banner) banner.classList.add("hidden");
   }
+
+  $$(".nav-toggle").forEach((btn) => annotateIconButton(btn, svgMenu, '☰'));
+  const searchOpen = $("#searchOpen");
+  if (searchOpen) {
+    annotateIconButton(searchOpen, svgSearch, '⌕');
+    searchOpen.setAttribute('aria-label', 'Open site search');
+  }
+  const themeToggle = $("#themeToggle");
+  if (themeToggle) {
+    annotateIconButton(themeToggle, document.body.classList.contains('light') ? svgSun : svgMoon, '◐');
+    setThemeIcon(themeToggle);
+  }
+  $$(".close-modal").forEach((btn) => annotateIconButton(btn, svgClose, '×'));
 
   const navToggle = $(".nav-toggle");
   const navLinks = $("#navLinks");
@@ -160,9 +210,11 @@ function init() {
     }
   });
 
-  $("#themeToggle")?.addEventListener("click", () => {
+  const themeToggleButton = $("#themeToggle");
+  themeToggleButton?.addEventListener("click", () => {
     document.body.classList.toggle("light");
     localStorage.setItem("msa-theme", document.body.classList.contains("light") ? "light" : "dark");
+    setThemeIcon(themeToggleButton);
   });
 
   $("#searchOpen")?.addEventListener("click", () => $("#searchModal")?.showModal());
@@ -193,4 +245,8 @@ function init() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", init);
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
