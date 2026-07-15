@@ -356,6 +356,19 @@ body.light .modal { background: rgba(244, 249, 255, 0.96); }
     visibility: visible !important;
     pointer-events: auto !important;
   }
+
+  /* Mobile-specific fixes for Services cards to prevent clipping/overflow */
+  .stack { display: grid; gap: 1rem; }
+  .stack > .glass-card { width: 100%; padding: 0.85rem; }
+  .card-grid { grid-template-columns: 1fr !important; gap: .85rem !important; }
+  .card-grid article { min-width: 0; width: 100%; }
+  .card-grid .glass-card { padding: .9rem; border-radius: 14px; }
+  .card-grid h3 { font-size: 1.05rem; }
+  .card-grid p { font-size: .95rem; }
+  .card-grid a.secondary-button { padding: .6rem .9rem; min-width: 120px; }
+  /* Ensure no horizontal scroll from nested grids */
+  .card-grid, .stack, .glass-card { overflow: visible; }
+
   body { padding-top: 0; }
 }
 @media (max-width: 480px) {
