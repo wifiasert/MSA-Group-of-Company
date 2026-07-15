@@ -345,6 +345,17 @@ body.light .modal { background: rgba(244, 249, 255, 0.96); }
   .cookie { left: .75rem; right: .75rem; bottom: .75rem; transform: none; border-radius: 24px; flex-wrap: wrap; }
   .newsletter input { min-width: 0; width: 100%; }
   .chatbot { right: .75rem; bottom: .75rem; }
+  /* Ensure content is visible on small screens even if JS reveal scripts don't run */
+  .reveal { opacity: 1 !important; transform: none !important; }
+  /* If the JS 'loaded' flow fails, make sure main content is still accessible on phones */
+  html.js body:not(.loaded) main,
+  html.js body:not(.loaded) .site-footer,
+  html.js body:not(.loaded) .cookie,
+  html.js body:not(.loaded) .toast {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
   body { padding-top: 0; }
 }
 @media (max-width: 480px) {
