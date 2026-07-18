@@ -65,14 +65,13 @@ body::after {
   z-index: -1;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255,255,255,0.18) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.18) 1px, transparent 1px),
-    radial-gradient(circle at 10% 15%, rgba(255,255,255,0.18), transparent 58%),
-    radial-gradient(circle at 90% 10%, rgba(255,255,255,0.14), transparent 54%);
-  background-size: 48px 48px, 48px 48px, 22rem 22rem, 22rem 22rem;
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    radial-gradient(circle at 10% 15%, rgba(255,255,255,0.18), transparent 55%),
+    radial-gradient(circle at 90% 10%, rgba(255,255,255,0.14), transparent 50%);
+  background-size: 54px 54px, 54px 54px, 20rem 20rem, 20rem 20rem;
   background-position: 0 0, 0 0, 10% 10%, 90% 10%;
-  background-repeat: repeat, repeat, no-repeat, no-repeat;
-  opacity: 0.42;
+  opacity: 0.33;
 }
 body, button, input, textarea { font: inherit; }
 p, li { overflow-wrap: anywhere; }
