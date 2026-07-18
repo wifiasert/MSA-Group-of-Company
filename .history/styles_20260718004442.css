@@ -126,7 +126,7 @@ body.light .site-header { background: rgba(244, 249, 255, 0.82); }
 }
 .nav-item:hover .submenu, .nav-item:focus-within .submenu { opacity: 1; visibility: visible; transform: translateY(0); }
 .nav-actions { display: flex; align-items: center; gap: .6rem; }
-.icon-button, .pill-button, .secondary-button, .primary-button, .ghost-button, .tab, .chip {
+..icon-button, .pill-button, .secondary-button, .primary-button, .ghost-button, .tab, .chip {
   border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--text); transition: transform .2s ease, background .2s ease, border-color .2s ease;
 }
 .icon-button:hover, .pill-button:hover, .secondary-button:hover, .primary-button:hover, .ghost-button:hover, .tab:hover, .chip:hover { transform: translateY(-1px); }

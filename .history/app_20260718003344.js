@@ -107,26 +107,7 @@ function setupReveal() {
 function setupForms() {
   const formspreeEndpoint = "https://formspree.io/f/mojgegqb";
 
-  const ensureStatusContainer = (form) => {
-    let status = form.querySelector(".form-status");
-    if (!status) {
-      status = document.createElement("div");
-      status.className = "form-status";
-      status.setAttribute("aria-live", "polite");
-      status.setAttribute("role", "status");
-      form.append(status);
-    }
-    return status;
-  };
-
-  const setFormMessage = (form, message, type = "success") => {
-    const status = ensureStatusContainer(form);
-    status.textContent = message;
-    status.classList.toggle("form-status--error", type === "error");
-    status.classList.toggle("form-status--success", type === "success");
-  };
-
-  $$('[data-form]').forEach((form) => {
+  $$("[data-form]").forEach((form) => {
     if (form.dataset.form === "admin-login") return;
 
     form.setAttribute("action", formspreeEndpoint);
@@ -157,7 +138,6 @@ function setupForms() {
       event.preventDefault();
       const button = form.querySelector("button[type='submit'], input[type='submit']");
       if (button) button.disabled = true;
-      setFormMessage(form, "Sending...", "success");
 
       const formData = new FormData(form);
       formData.set("submitted_from", sourceValue);
@@ -177,19 +157,13 @@ function setupForms() {
         const result = await response.json().catch(() => null);
         if (!response.ok) {
           const error = result?.error || response.statusText || "Submission failed.";
-          const message = `Submission failed: ${error}`;
-          toast(message);
-          setFormMessage(form, message, "error");
+          toast(`Submission failed: ${error}`);
           return;
         }
-        const successMessage = "Thanks! Your form was sent successfully.";
-        toast(successMessage);
-        setFormMessage(form, successMessage, "success");
+        toast("Thanks! Your form was sent successfully.");
         form.reset();
       } catch (error) {
-        const message = "Network error. Please try again or email hello@msa.company.";
-        toast(message);
-        setFormMessage(form, message, "error");
+        toast("Network error. Please try again or email hello@msa.company.");
       } finally {
         if (button) button.disabled = false;
       }
