@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -300,7 +300,7 @@
   <header class="site-header">
     <nav class="nav-shell" aria-label="Primary navigation">
       <a class="brand" href="../" aria-label="MSA Group of Company home"><img class="brand-logo" src="../images/logo%20n%20copy.jpg" alt="MSA Group of Company logo"><span class="brand-text">MSA Group of Company</span></a>
-      <button class="icon-button nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">â˜°</button>
+      <button class="icon-button nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
       <div class="nav-links" id="navLinks">
         <div class="nav-item"><a href="../about/">About</a></div>
         <div class="nav-item"><a href="../music/">Music</a><div class="submenu"><a href="../music/record-label/">Record Label</a><a href="../music/distribution/">Distribution</a><a href="../music/publishing/">Publishing</a><a href="../music/artist-services/">Artist Services</a></div></div>
@@ -312,16 +312,47 @@
         <div class="nav-item"><a href="../support/">Support</a></div>
         <div class="nav-item"><a href="../contact/">Contact</a></div>
       </div>
-      <div class="nav-actions"><button class="icon-button" id="searchOpen" type="button" aria-label="Open search">âŒ•</button><button class="icon-button" id="themeToggle" type="button" aria-label="Toggle theme">â—</button></div>
+      <div class="nav-actions"><button class="icon-button" id="searchOpen" type="button" aria-label="Open search">⌕</button><button class="icon-button" id="themeToggle" type="button" aria-label="Toggle theme">◐</button></div>
     </nav>
   </header>
   <main id="main">
     <section class="page-hero reveal"><div class="hero-content"><p class="eyebrow">MSA Group of Company</p><h1>Start a conversation about your next release, product, or launch.</h1><p class="hero-copy">Share a few details and the team will follow up with a tailored response.</p></div></section>
-    <section class="section reveal"><div class="hero-grid"><div class="form-card"><h3>Contact form</h3><form data-form="contact"><div class="form-grid"><label>Name<input required name="name"></label><label>Email<input required type="email" name="email"></label><label>Company<input name="company"></label><label>Subject<input name="subject"></label><label>Service Needed<input name="service"></label><label>Budget<input name="budget"></label><label class="full">Message<textarea rows="5" name="message"></textarea></label></div><button class="primary-button" type="submit">Send inquiry</button></form></div><div class="stack"><article class="detail-card"><h3>Business email</h3><p>hello@msa.company</p></article><article class="detail-card"><h3>Response time</h3><p>Usually within 1â€“2 business days.</p></article><article class="detail-card"><h3>Business hours</h3><p>Mondayâ€“Friday â€¢ 9amâ€“6pm GMT</p></article><article class="detail-card"><h3>Location</h3><p>Ghana â€¢ Worldwide remote services</p></article></div></div></section>
-    <section class="section reveal"><div class="content-grid"><article class="glass-card"><h3>Social media</h3><p>Instagram â€¢ X â€¢ YouTube â€¢ LinkedIn â€¢ TikTok</p></article><article class="glass-card"><h3>FAQ shortcut</h3><p>Need a quick answer? Visit the support center for common requests and help articles.</p><a class="inline-link" href="../support/">Visit support</a></article><article class="glass-card"><h3>Map placeholder</h3><p>Remote-first studio serving creators and businesses around the world.</p></article></div></section>
+    <section class="section reveal">
+      <div class="hero-grid">
+        <div class="form-card">
+          <h3>Contact our team</h3>
+          <p>Tell us about your music project, software need, or next launch. We reply with a custom plan and clear next steps.</p>
+          <form data-form="contact">
+            <div class="form-grid">
+              <label>Name<input required name="name"></label>
+              <label>Email<input required type="email" name="email"></label>
+              <label>Company<input name="company"></label>
+              <label>Project type<input name="service" placeholder="Music, software, design, consulting"></label>
+              <label>Budget<input name="budget" placeholder="Estimated budget or timeline"></label>
+              <label class="full">Message<textarea rows="5" name="message" placeholder="Share the goal, audience, and any key details."></textarea></label>
+            </div>
+            <button class="primary-button" type="submit">Send inquiry</button>
+          </form>
+        </div>
+        <div class="stack">
+          <article class="detail-card"><h3>Business email</h3><p>hello@msa.company</p></article>
+          <article class="detail-card"><h3>Response time</h3><p>Usually within 1–2 business days.</p></article>
+          <article class="detail-card"><h3>Business hours</h3><p>Monday–Friday • 9am–6pm GMT</p></article>
+          <article class="detail-card"><h3>Location</h3><p>Remote-first studio based in Ghana, serving worldwide clients.</p></article>
+          <article class="detail-card"><h3>Ready to start?</h3><p>Want to talk music distribution, app design, or digital products? We can help.</p><a class="inline-link" href="../services/">Explore services</a></article>
+        </div>
+      </div>
+    </section>
+    <section class="section reveal">
+      <div class="content-grid">
+        <article class="glass-card"><h3>Connect faster</h3><p>Ask about artist services, software launches, product strategy, or creative campaigns.</p><a class="inline-link" href="../music/">Browse music services</a></article>
+        <article class="glass-card"><h3>Support & projects</h3><p>Need a quick answer? Our support page has common guidance for planning, delivery, and order questions.</p><a class="inline-link" href="../support/">Visit support</a></article>
+        <article class="glass-card"><h3>Why choose MSA</h3><p>We blend music, software, design, and business strategy for coherent results that feel premium and practical.</p><a class="inline-link" href="../about/">Learn more</a></article>
+      </div>
+    </section>
   </main>
   <footer class="site-footer"><div><a class="brand" href="../" aria-label="MSA Group of Company home"><img class="brand-logo" src="../images/logo%20n%20copy.jpg" alt="MSA Group of Company logo"><span class="brand-text">MSA Group of Company</span></a><p>Music, software, creative production, digital commerce, and technology solutions.</p></div><form class="newsletter" data-form="newsletter"><label>Newsletter<input required type="email" placeholder="Email address"></label><button class="secondary-button" type="submit">Subscribe</button></form></footer>
-  <dialog class="modal" id="searchModal"><button class="icon-button close-modal" data-close type="button">Ã—</button><h2>Search MSA Group of Company</h2><input id="siteSearch" placeholder="Search services, products, support, blog..."><div id="searchResults" class="search-results"></div></dialog>
+  <dialog class="modal" id="searchModal"><button class="icon-button close-modal" data-close type="button">×</button><h2>Search MSA Group of Company</h2><input id="siteSearch" placeholder="Search services, products, support, blog..."><div id="searchResults" class="search-results"></div></dialog>
   <div class="chatbot" id="chatbot"><button class="chat-toggle" id="chatToggle" type="button">AI</button><div class="chat-window" aria-live="polite"><strong>MSA AI Support</strong><div id="chatLog"><p>Ask about software, music submissions, orders, or services.</p></div><form id="chatForm"><input id="chatInput" placeholder="Type a question..."><button type="submit">Send</button></form></div></div>
   <div class="cookie" id="cookieBanner"><p>MSA Group of Company uses cookies for analytics, preferences, and better shopping experiences.</p><button class="secondary-button" id="cookieAccept" type="button">Accept</button></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
