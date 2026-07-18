@@ -309,6 +309,25 @@ input, textarea, select {
 }
 body.light input, body.light textarea, body.light select { background: rgba(228, 241, 255, 0.92); }
 input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+.form-status {
+  margin-top: 1rem;
+  padding: .85rem 1rem;
+  border-radius: 16px;
+  background: rgba(8, 24, 48, 0.9);
+  color: var(--text);
+  border: 1px solid transparent;
+  font-size: .95rem;
+  line-height: 1.5;
+}
+.form-status--success {
+  border-color: rgba(56, 184, 255, 0.25);
+  background: rgba(8, 33, 58, 0.92);
+}
+.form-status--error {
+  border-color: rgba(255, 101, 121, 0.3);
+  background: rgba(61, 20, 26, 0.94);
+  color: #ffd7d7;
+}
 .table-card { padding: 0; overflow: hidden; }
 .table-card table { width: 100%; border-collapse: collapse; }
 .table-card th, .table-card td { padding: .95rem 1rem; text-align: left; border-bottom: 1px solid var(--line); }
