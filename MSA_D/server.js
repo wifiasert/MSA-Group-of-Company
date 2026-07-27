@@ -6,7 +6,11 @@ const jwt = require('jsonwebtoken');
 
 const rootDir = __dirname;
 const port = Number(process.env.PORT || 3000);
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
+const BACKEND_URL = process.env.BACKEND_URL;
+if (!BACKEND_URL) {
+  console.error('BACKEND_URL environment variable is required.');
+  process.exit(1);
+}
 const backendUrl = new URL(BACKEND_URL);
 const config = {
   dbName: process.env.DB_NAME || '',
@@ -519,6 +523,21 @@ const server = http.createServer((req, res) => {
   serveFile(res, path.join(rootDir, 'index.html'));
 });
 
-server.listen(port, () => {
-  console.log(`MSA TUNE STUDIO server running on http://localhost:${port}`);
+let currentPort = port;
+
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE' && currentPort === port) {
+    const fallbackPort = port + 1;
+    console.warn(`Port ${port} is already in use. Retrying on port ${fallbackPort}...`);
+    currentPort = fallbackPort;
+    server.listen(currentPort);
+    return;
+  }
+
+  console.error('Server startup error:', error);
+  process.exit(1);
+});
+
+server.listen(currentPort, () => {
+  console.log(`MSA TUNE STUDIO server running on port ${currentPort}`);
 });

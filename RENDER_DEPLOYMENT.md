@@ -25,7 +25,7 @@ The public website also includes a legacy distribution landing page at `music/di
 - `PORT` = `4000`
 - `JWT_SECRET` = a strong random secret
 - `MONGO_URI` = MongoDB connection string
-- `CORS_ORIGIN` = the public frontend origin, e.g. `https://<your-app>.onrender.com` or `http://localhost:3000`
+- `CORS_ORIGIN` = the public frontend origin, e.g. `https://<your-app>.onrender.com`
 - `NODE_ENV` = `production`
 
 Optional:
@@ -64,17 +64,17 @@ The main site for `music/distribution/` now redirects to the app at `/MSA_D/`.
    ```bash
    cd backend
    npm install
-   npm start
+   BACKEND_URL=https://<your-backend>.onrender.com CORS_ORIGIN=https://<your-frontend>.onrender.com npm start
    ```
 
 2. Start frontend from `MSA_D/`:
    ```bash
    cd MSA_D
    npm install
-   npm start
+   BACKEND_URL=https://<your-backend>.onrender.com npm start
    ```
 
-3. Visit `http://localhost:3000/` to access the dashboard app.
+3. Visit the configured frontend URL to access the dashboard app.
 
 ## Useful links
 
