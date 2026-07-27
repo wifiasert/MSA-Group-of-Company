@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MSA TUNE STUDIO | Authentication</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="content-panel auth-page">
+    <div class="topbar">
+      <div>
+        <p class="eyebrow">Secure access</p>
+        <h2>Login, Register, Reset Password</h2>
+      </div>
+      <a class="ghost-button" href="./">Back to dashboard</a>
+    </div>
+    <section class="grid-layout">
+      <article class="panel-card">
+        <div class="panel-head"><h4>Login</h4><span class="pill">JWT ready</span></div>
+        <form class="form-grid" data-login-form>
+          <label>Email<input type="email" name="email" required></label>
+          <label>Password<input type="password" name="password" required></label>
+          <div class="form-actions full-span"><button class="primary-button" type="submit">Sign in</button></div>
+        </form>
+      </article>
+      <article class="panel-card">
+        <div class="panel-head"><h4>Register</h4><span class="pill">Artist or admin</span></div>
+        <form class="form-grid" data-register-form>
+          <label>Name<input name="name" required></label>
+          <label>Email<input type="email" name="email" required></label>
+          <label>Password<input type="password" name="password" required></label>
+          <label>Role<select name="role"><option value="Artist">Artist</option><option value="Administrator">Administrator</option></select></label>
+          <div class="form-actions full-span"><button class="ghost-button" type="submit">Create account</button></div>
+        </form>
+      </article>
+    </section>
+    <section class="grid-layout">
+      <article class="panel-card">
+        <div class="panel-head"><h4>Forgot password</h4><span class="pill">Email verification</span></div>
+        <form class="form-grid" data-forgot-form>
+          <label>Email<input type="email" name="email" required></label>
+          <div class="form-actions"><button class="primary-button" type="submit">Send reset link</button></div>
+        </form>
+      </article>
+      <article class="panel-card">
+        <div class="panel-head"><h4>Reset password</h4><span class="pill">Secure tokens</span></div>
+        <form class="form-grid" data-reset-form>
+          <label>New password<input type="password" name="password" required></label>
+          <label>Confirm password<input type="password" name="confirmPassword" required></label>
+          <div class="form-actions"><button class="ghost-button" type="submit">Reset password</button></div>
+        </form>
+      </article>
+    </section>
+    <div id="authMessage" class="auth-feedback"></div>
+  </main>
+  <script>
+    const authMessage = document.getElementById('authMessage');
+
+    function setMessage(message, isError = false) {
+      authMessage.textContent = message;
+      authMessage.className = isError ? 'auth-feedback error' : 'auth-feedback success';
+    }
+
+    async function postJson(url, body) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        credentials: 'include'
+      });
+      const payload = await response.json().catch(() => null);
+      return { status: response.status, ok: response.ok, payload };
+    }
+
+    function formToObject(form) {
+      return Array.from(form.elements)
+        .filter((element) => element.name)
+        .reduce((data, element) => {
+          if (element.type === 'checkbox') {
+            data[element.name] = element.checked;
+          } else {
+            data[element.name] = element.value;
+          }
+          return data;
+        }, {});
+    }
+
+    const loginForm = document.querySelector('[data-login-form]');
+    const registerForm = document.querySelector('[data-register-form]');
+    const forgotForm = document.querySelector('[data-forgot-form]');
+    const resetForm = document.querySelector('[data-reset-form]');
+
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        setMessage('Signing in...', false);
+        const values = formToObject(loginForm);
+        const result = await postJson('/api/auth/login', values);
+        if (!result.ok || result.status >= 400) {
+          setMessage(result.payload?.message || 'Login failed', true);
+          return;
+        }
+        window.location.replace('/dashboard');
+      });
+    }
+
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        setMessage('Creating account...', false);
+        const values = formToObject(registerForm);
+        const result = await postJson('/api/auth/register', values);
+        if (!result.ok || result.status >= 400) {
+          setMessage(result.payload?.message || 'Registration failed', true);
+          return;
+        }
+        window.location.replace('/dashboard');
+      });
+    }
+
+    if (forgotForm) {
+      forgotForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        setMessage('Password reset is not available yet. Please contact support.', true);
+      });
+    }
+
+    if (resetForm) {
+      resetForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        setMessage('Password reset flow is not implemented in this build.', true);
+      });
+    }
+  </script>
+</body>
+</html>

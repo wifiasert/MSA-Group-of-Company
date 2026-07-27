@@ -1,0 +1,9 @@
+{
+  "name": "msa-tune-studio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "verify": "node --check server.js && node --check app.js && node --check lib/platform.js"
+  }
+}
