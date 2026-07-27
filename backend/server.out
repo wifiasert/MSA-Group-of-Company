@@ -1,0 +1,4 @@
+Loaded backend .env from C:\Users\user\Downloads\MSASIT\backend\.env result= ok
+ENV MONGO_URI= mongodb://localhost:27017/msa-tune-studio
+ENV JWT_SECRET set= true length= 18
+MSA Tune Studio backend running on port 4000
