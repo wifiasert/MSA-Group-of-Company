@@ -492,10 +492,21 @@ const server = http.createServer((req, res) => {
   let filePath = path.join(rootDir, safePath);
 
   const requestAuthToken = getAuthCookie(req);
+  const hasValidSession = verifyAuthToken(requestAuthToken);
   const isDashboardRoute = pathname === '/dashboard' || pathname === '/dashboard/' || pathname.startsWith('/dashboard/');
   const isAuthPage = pathname === '/auth.html';
+  const isRootEntry = pathname === '/index.html' || pathname === '/' || pathname === '/music/MSA_D' || pathname === '/music/MSA_D/';
 
-  if (isAuthPage && verifyAuthToken(requestAuthToken)) {
+  if (isRootEntry) {
+    res.writeHead(302, {
+      Location: '/music/MSA_D/auth.html',
+      'Content-Type': 'text/html; charset=utf-8'
+    });
+    res.end('<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/music/MSA_D/auth.html"></head><body>Redirecting to secure login...</body></html>');
+    return;
+  }
+
+  if (isAuthPage && hasValidSession) {
     res.writeHead(302, {
       Location: '/music/MSA_D/dashboard/',
       'Content-Type': 'text/html; charset=utf-8'
@@ -504,7 +515,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (isDashboardRoute && !verifyAuthToken(requestAuthToken)) {
+  if (isDashboardRoute && !hasValidSession) {
     res.writeHead(302, {
       Location: '/music/MSA_D/auth.html',
       'Content-Type': 'text/html; charset=utf-8'
