@@ -1338,6 +1338,7 @@
 
     const renderer = renderers[page] || renderDashboard;
     pageContent.innerHTML = renderer(data);
+    rewriteDashboardLinks();
   }
 
   function bindPageInteractions(page) {
@@ -1787,6 +1788,8 @@
         });
       });
     }
+
+    rewriteDashboardLinks();
   }
 
   async function init() {
@@ -1804,6 +1807,7 @@
     } catch (error) {
       if (pageContent) {
         pageContent.innerHTML = errorMarkup(error.message);
+        rewriteDashboardLinks();
       }
     }
   }
