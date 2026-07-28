@@ -1,5 +1,25 @@
 (function () {
   const pageKey = document.body?.dataset.page || 'dashboard';
+
+  // When the dashboard is hosted under a nested path (e.g. /music/MSA_D/dashboard/),
+  // rewrite any absolute "/dashboard" links to the current base so navigation works.
+  (function rewriteDashboardLinks() {
+    try {
+      const anchors = Array.from(document.querySelectorAll('a[href^="/dashboard"]'));
+      if (!anchors.length) return;
+      // determine base prefix that includes the /dashboard segment from the current path
+      const m = window.location.pathname.match(/^(.*?\/dashboard)/);
+      const basePrefix = m ? m[1] : '/dashboard';
+      anchors.forEach((a) => {
+        const href = a.getAttribute('href');
+        if (!href) return;
+        if (href === '/dashboard') a.setAttribute('href', basePrefix);
+        else a.setAttribute('href', href.replace(/^\/dashboard/, basePrefix));
+      });
+    } catch (e) {
+      // non-fatal
+    }
+  })();
   const pageContent = document.querySelector('.page-content');
   const sidebar = document.getElementById('sidebar');
   const toggleButton = document.getElementById('mobileToggle');

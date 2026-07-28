@@ -6,10 +6,9 @@ const jwt = require('jsonwebtoken');
 
 const rootDir = __dirname;
 const port = Number(process.env.PORT || 3000);
-const BACKEND_URL = process.env.BACKEND_URL;
-if (!BACKEND_URL) {
-  console.error('BACKEND_URL environment variable is required.');
-  process.exit(1);
+const BACKEND_URL = process.env.BACKEND_URL || process.env.BACKEND || 'http://localhost:4000';
+if (!process.env.BACKEND_URL) {
+  console.warn('BACKEND_URL not set — defaulting to http://localhost:4000 for local testing. Set BACKEND_URL to your backend URL in production.');
 }
 const backendUrl = new URL(BACKEND_URL);
 const config = {
