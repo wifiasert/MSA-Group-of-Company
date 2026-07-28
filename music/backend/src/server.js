@@ -3,8 +3,6 @@ const dotenv = require('dotenv');
 const envPath = path.resolve(__dirname, '../.env');
 const envResult = dotenv.config({ path: envPath });
 console.log('Loaded backend .env from', envPath, 'result=', envResult.error ? envResult.error.message : 'ok');
-console.log('ENV MONGO_URI=', process.env.MONGO_URI);
-console.log('ENV JWT_SECRET set=', Boolean(process.env.JWT_SECRET), 'length=', process.env.JWT_SECRET ? process.env.JWT_SECRET.length : 0);
 if (!process.env.JWT_SECRET) {
   console.error('JWT_SECRET is required. Set it in backend/.env or the environment.');
   process.exit(1);
@@ -31,12 +29,23 @@ const { seedDefaultUsers } = require('./services/seedService');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const frontendOrigin = process.env.CORS_ORIGIN || '*';
+const configuredOrigins = (process.env.CORS_ORIGIN || 'https://msagroupofcompanies.online')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(helmet());
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
-app.use(cors({ origin: frontendOrigin, credentials: true }));
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || configuredOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 app.use(morgan('combined'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

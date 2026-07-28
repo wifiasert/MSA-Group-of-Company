@@ -7,9 +7,7 @@ const jwt = require('jsonwebtoken');
 const rootDir = __dirname;
 const port = Number(process.env.PORT || 3000);
 const PUBLIC_BASE_PATH = process.env.PUBLIC_BASE_PATH || '/MSA_D';
-const fallbackBackendUrl = process.env.NODE_ENV === 'production'
-  ? 'https://msa-tune-studio-backend.onrender.com'
-  : 'http://127.0.0.1:4000';
+const fallbackBackendUrl = 'https://msa-tune-studio-backend.onrender.com';
 const BACKEND_URL = process.env.BACKEND_URL || process.env.BACKEND || fallbackBackendUrl;
 if (!process.env.BACKEND_URL && !process.env.BACKEND) {
   console.warn(`BACKEND_URL not set — using ${BACKEND_URL}`);

@@ -1,5 +1,162 @@
 (function () {
   const pageKey = document.body?.dataset.page || 'dashboard';
+  const STUDIO_BASE_PATH = '/MSA_D';
+  const API_BASE_URL = (window.MSA_TUNE_API_BASE_URL || 'https://msa-tune-studio-backend.onrender.com').replace(/\/+$/, '');
+  const AUTH_STORAGE_KEY = 'msa_tune_auth';
+  const FALLBACK_PAGE_DATA = {
+    upload: {},
+    revenue: {},
+    balance: {},
+    messages: {},
+    settings: {},
+    help: {}
+  };
+
+  function studioPath(path) {
+    const normalized = String(path || '').replace(/^\/+/, '');
+    return `${STUDIO_BASE_PATH}/${normalized}`.replace(/\/+$/, '') + (normalized && !normalized.includes('.') ? '/' : '');
+  }
+
+  function apiUrl(path) {
+    return `${API_BASE_URL}${String(path || '').startsWith('/') ? path : `/${path}`}`;
+  }
+
+  function getStoredAuth() {
+    try {
+      return JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY) || 'null');
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function clearStoredAuth() {
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (error) {
+      // ignore storage failures
+    }
+  }
+
+  function getAccessToken() {
+    return getStoredAuth()?.tokens?.accessToken || '';
+  }
+
+  function redirectToLogin() {
+    window.location.replace(`${STUDIO_BASE_PATH}/login.html`);
+  }
+
+  async function apiFetch(path, options = {}) {
+    const headers = { ...(options.headers || {}) };
+    const token = getAccessToken();
+    if (token && !headers.Authorization) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    const response = await fetch(apiUrl(path), {
+      ...options,
+      headers
+    });
+    const payload = await response.json().catch(() => null);
+    if (response.status === 401) {
+      clearStoredAuth();
+      redirectToLogin();
+      throw new Error('Your session expired. Please sign in again.');
+    }
+    if (!response.ok) {
+      throw new Error(payload?.message || payload?.error || 'The platform could not fetch the latest workspace data.');
+    }
+    return payload?.data || payload || {};
+  }
+
+  async function logout() {
+    try {
+      await apiFetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      // A failed logout request should not trap the user in a local session.
+    } finally {
+      clearStoredAuth();
+      redirectToLogin();
+    }
+  }
+
+  function normalizePageData(page, data) {
+    const authUser = getStoredAuth()?.user || {};
+    if (page === 'dashboard') {
+      const dashboard = data.dashboard || data;
+      return {
+        artist: {
+          name: authUser.name || 'MSA Artist',
+          verification: 'Production account connected',
+          distributionStatus: 'Active'
+        },
+        metrics: {
+          totalReleases: dashboard.totalReleases || 0,
+          streams: dashboard.totalStreams || 0,
+          revenue: dashboard.totalRevenue || 0,
+          pendingReleases: dashboard.pendingReleases || 0,
+          withdrawalRequests: dashboard.withdrawalRequests || 0
+        },
+        releases: [],
+        activity: [],
+        notifications: [],
+        withdrawals: []
+      };
+    }
+    if (page === 'analytics') {
+      const analytics = data.analytics || data;
+      const breakdown = analytics.breakdown || [];
+      return {
+        series: breakdown.length ? breakdown.map((item) => item.value || 0) : [analytics.streams || 0],
+        topTracks: breakdown.map((item) => ({ title: item.label, metric: `${Number(item.value || 0).toLocaleString()} streams`, growth: 'Live backend data' })),
+        countries: [],
+        platforms: [],
+        summary: analytics
+      };
+    }
+    if (page === 'releases') {
+      return { releases: data.releases || [] };
+    }
+    if (page === 'withdrawals') {
+      const withdrawals = data.withdrawals || [];
+      return {
+        history: withdrawals.map(normalizeWithdrawal),
+        historyDetailed: withdrawals.map(normalizeWithdrawal)
+      };
+    }
+    if (page === 'notifications') {
+      return { items: data.notifications || [] };
+    }
+    if (page === 'support') {
+      return { tickets: data.tickets || [], conversation: [] };
+    }
+    if (page === 'profile') {
+      const profile = data.profile || authUser || {};
+      return {
+        ...profile,
+        stageName: profile.name || authUser.name || '',
+        paymentMethods: (data.paymentMethods || []).map(normalizePaymentMethod)
+      };
+    }
+    return data || {};
+  }
+
+  function normalizePaymentMethod(method) {
+    return {
+      ...method,
+      method: method.method || method.type || 'Payment method',
+      account: method.account || method.accountName || method.accountNumber || method.mobileNumber || method.paypalEmail || '',
+      default: Boolean(method.default || method.isDefault)
+    };
+  }
+
+  function normalizeWithdrawal(withdrawal) {
+    return {
+      ...withdrawal,
+      amount: withdrawal.amount,
+      date: withdrawal.date || withdrawal.requestedAt || '',
+      processing: withdrawal.processing || '',
+      reference: withdrawal.reference || withdrawal._id || withdrawal.id || ''
+    };
+  }
 
   // When the dashboard is hosted under a nested path (e.g. /MSA_D/dashboard/),
   // rewrite any absolute "/dashboard" links to the current base so navigation works.
@@ -9,7 +166,7 @@
       if (!anchors.length) return;
       // determine base prefix that includes the /dashboard segment from the current path
       const m = window.location.pathname.match(/^(.*?\/dashboard)/);
-      const basePrefix = m ? m[1] : '/dashboard';
+      const basePrefix = m ? m[1] : `${STUDIO_BASE_PATH}/dashboard`;
       anchors.forEach((a) => {
         const href = a.getAttribute('href');
         if (!href) return;
@@ -168,7 +325,7 @@
   function normalizeNavigation() {
     const nav = document.querySelector('.sidebar-nav');
     if (!nav) return;
-    const revenueLink = Array.from(nav.querySelectorAll('.nav-link')).find((link) => link.getAttribute('href') === '/dashboard/revenue');
+    const revenueLink = Array.from(nav.querySelectorAll('.nav-link')).find((link) => link.getAttribute('href') === `${STUDIO_BASE_PATH}/dashboard/revenue` || link.getAttribute('href') === '/dashboard/revenue');
     if (revenueLink) {
       revenueLink.textContent = 'Revenue & Payouts';
     }
@@ -577,7 +734,7 @@
 
   function setActiveLink() {
     normalizeNavigation();
-    const path = window.location.pathname.replace(/\/+$/, '') || '/dashboard';
+    const path = window.location.pathname.replace(/\/+$/, '') || `${STUDIO_BASE_PATH}/dashboard`;
     document.querySelectorAll('.sidebar-nav .nav-link').forEach((link) => {
       const target = link.getAttribute('href');
       link.classList.toggle('active', target === path);
@@ -595,7 +752,7 @@
 
     return `
       <section class="page-shell">
-        <div class="page-toolbar"><div><p class="eyebrow">Publishing</p><h3>Release builder</h3></div><div class="action-group"><a class="ghost-button" href="/dashboard/releases">See releases</a><button class="primary-button" type="button" id="saveDraft">Save draft</button></div></div>
+        <div class="page-toolbar"><div><p class="eyebrow">Publishing</p><h3>Release builder</h3></div><div class="action-group"><a class="ghost-button" href="${studioPath('dashboard/releases')}">See releases</a><button class="primary-button" type="button" id="saveDraft">Save draft</button></div></div>
         <div class="wizard-shell">
           <nav class="wizard-stepbar" aria-label="Release creation steps">
             ${steps.map((step, index) => {
@@ -664,7 +821,7 @@
             <table>
               <thead><tr><th>Artwork</th><th>Title</th><th>Artist</th><th>Release date</th><th>Genre</th><th>Status</th><th>Revenue</th><th>Streams</th><th>Action</th></tr></thead>
               <tbody>
-                ${releases.map((item) => `<tr><td>${escapeHtml(item.artwork || 'Cover')}</td><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.artist)}</td><td>${escapeHtml(item.releaseDate)}</td><td>${escapeHtml(item.genre)}</td><td>${statusBadge(item.status)}</td><td>${formatCurrency(item.revenue || 0)}</td><td>${Number(item.streams || 0).toLocaleString()}</td><td><a href="/dashboard/analytics">View</a></td></tr>`).join('')}
+                ${releases.map((item) => `<tr><td>${escapeHtml(item.artwork || 'Cover')}</td><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.artist || item.primaryArtist || '')}</td><td>${escapeHtml(item.releaseDate || '')}</td><td>${escapeHtml(item.genre || '')}</td><td>${statusBadge(item.status)}</td><td>${formatCurrency(item.revenue || 0)}</td><td>${Number(item.streams || 0).toLocaleString()}</td><td><a href="${studioPath('dashboard/analytics')}">View</a></td></tr>`).join('')}
               </tbody>
             </table>
           </div>
@@ -858,6 +1015,17 @@
   }
 
   function bindShellEvents() {
+    const topbarActions = document.querySelector('.topbar-actions');
+    if (topbarActions && !document.getElementById('logoutButton')) {
+      const logoutButton = document.createElement('button');
+      logoutButton.className = 'ghost-button';
+      logoutButton.id = 'logoutButton';
+      logoutButton.type = 'button';
+      logoutButton.textContent = 'Logout';
+      topbarActions.appendChild(logoutButton);
+      logoutButton.addEventListener('click', logout);
+    }
+
     if (toggleButton) {
       toggleButton.addEventListener('click', () => {
         sidebar?.classList.toggle('open');
@@ -905,7 +1073,7 @@
           <p class="eyebrow">Connection issue</p>
           <h3>We could not load this screen.</h3>
           <p>${escapeHtml(message)}</p>
-          <a class="primary-button" href="/dashboard">Return to dashboard</a>
+          <a class="primary-button" href="${studioPath('dashboard')}">Return to dashboard</a>
         </div>
       </section>
     `;
@@ -913,26 +1081,27 @@
 
   async function loadPageData(page) {
     const endpoints = {
-      dashboard: '/api/dashboard',
-      upload: '/api/uploads',
+      dashboard: '/api/artists/dashboard',
       releases: '/api/releases',
-      analytics: '/api/analytics',
-      revenue: '/api/revenue',
-      balance: '/api/balance',
+      analytics: '/api/analytics/artist',
       withdrawals: '/api/withdrawals',
       support: '/api/support',
-      messages: '/api/messages',
       notifications: '/api/notifications',
-      profile: '/api/profile',
-      settings: '/api/settings',
-      help: '/api/help'
+      profile: '/api/profile'
     };
 
-    const response = await fetch(endpoints[page] || '/api/dashboard');
-    if (!response.ok) {
-      throw new Error('The platform could not fetch the latest workspace data.');
+    if (!endpoints[page]) {
+      return FALLBACK_PAGE_DATA[page] || {};
     }
-    return response.json();
+    const payload = await apiFetch(endpoints[page]);
+    if (page === 'profile') {
+      const paymentPayload = await apiFetch('/api/profile/payment-methods').catch(() => ({}));
+      return normalizePageData(page, {
+        ...payload,
+        paymentMethods: paymentPayload.paymentMethods || []
+      });
+    }
+    return normalizePageData(page, payload);
   }
 
   function renderDashboard(data) {
@@ -951,7 +1120,7 @@
           </div>
           <div class="action-group">
             <button class="ghost-button" type="button">Export summary</button>
-            <a class="primary-button" href="/dashboard/upload">New upload</a>
+            <a class="primary-button" href="${studioPath('dashboard/upload')}">New upload</a>
           </div>
         </div>
         <div class="notice-banner">
@@ -977,11 +1146,11 @@
             </ul>
           </article>
           <article class="panel-card">
-            <div class="panel-head"><h4>Quick actions</h4><a href="/dashboard/upload">Open uploads</a></div>
+            <div class="panel-head"><h4>Quick actions</h4><a href="${studioPath('dashboard/upload')}">Open uploads</a></div>
             <div class="chip-row">
-              <a class="pill" href="/dashboard/upload">Submit release</a>
-              <a class="pill" href="/dashboard/revenue">View revenue</a>
-              <a class="pill" href="/dashboard/support">Get help</a>
+              <a class="pill" href="${studioPath('dashboard/upload')}">Submit release</a>
+              <a class="pill" href="${studioPath('dashboard/revenue')}">View revenue</a>
+              <a class="pill" href="${studioPath('dashboard/support')}">Get help</a>
             </div>
             <ul class="stack-list">
               <li><strong>Support shortcut</strong><br><span class="muted">Open the latest admin ticket or start a new one in seconds.</span></li>
@@ -991,7 +1160,7 @@
         </div>
         <div class="content-grid two-up">
           <article class="panel-card">
-            <div class="panel-head"><h4>Revenue summary</h4><a href="/dashboard/revenue">Open revenue</a></div>
+            <div class="panel-head"><h4>Revenue summary</h4><a href="${studioPath('dashboard/revenue')}">Open revenue</a></div>
             <div class="chart-card svg-card">
               <svg viewBox="0 0 260 140" class="chart-svg" role="img" aria-label="Revenue trend chart">
                 <line x1="20" y1="120" x2="240" y2="120" class="axis" />
@@ -1004,7 +1173,7 @@
             </ul>
           </article>
           <article class="panel-card">
-            <div class="panel-head"><h4>Recent activity timeline</h4><a href="/dashboard/notifications">View all</a></div>
+            <div class="panel-head"><h4>Recent activity timeline</h4><a href="${studioPath('dashboard/notifications')}">View all</a></div>
             <ul class="timeline-list">
               ${activity.map((item) => `<li><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.time)}</span><p>${escapeHtml(item.detail)}</p></li>`).join('')}
             </ul>
@@ -1012,13 +1181,13 @@
         </div>
         <div class="content-grid two-up">
           <article class="panel-card">
-            <div class="panel-head"><h4>Notifications</h4><a href="/dashboard/notifications">Open inbox</a></div>
+            <div class="panel-head"><h4>Notifications</h4><a href="${studioPath('dashboard/notifications')}">Open inbox</a></div>
             <ul class="stack-list">
               ${notifications.map((item) => `<li><strong>${escapeHtml(item.title)}</strong><br><span class="muted">${escapeHtml(item.detail)}</span></li>`).join('')}
             </ul>
           </article>
           <article class="panel-card">
-            <div class="panel-head"><h4>Recent withdrawal requests</h4><a href="/dashboard/withdrawals">Manage</a></div>
+            <div class="panel-head"><h4>Recent withdrawal requests</h4><a href="${studioPath('dashboard/withdrawals')}">Manage</a></div>
             <ul class="stack-list">
               ${withdrawals.map((item) => `<li><strong>${formatCurrency(item.amount)}</strong><br><span class="muted">${escapeHtml(item.status)} · ${escapeHtml(item.date)}</span></li>`).join('')}
             </ul>
@@ -1047,7 +1216,7 @@
       <section class="page-shell">
         <div class="page-toolbar">
           <div><p class="eyebrow">Release management</p><h3>Lifecycle overview</h3></div>
-          <a class="primary-button" href="/dashboard/upload">Create release</a>
+          <a class="primary-button" href="${studioPath('dashboard/upload')}">Create release</a>
         </div>
         <div class="content-grid two-up">
           <article class="panel-card">
@@ -1072,7 +1241,7 @@
             <table>
               <thead><tr><th>Artwork</th><th>Title</th><th>Artist</th><th>Release date</th><th>Genre</th><th>Status</th><th>Revenue</th><th>Streams</th><th>Action</th></tr></thead>
               <tbody>
-                ${releases.map((item) => `<tr><td>${escapeHtml(item.artwork || 'Cover')}</td><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.artist)}</td><td>${escapeHtml(item.releaseDate)}</td><td>${escapeHtml(item.genre)}</td><td>${statusBadge(item.status)}</td><td>${formatCurrency(item.revenue || 0)}</td><td>${Number(item.streams || 0).toLocaleString()}</td><td><a href="/dashboard/analytics">View</a></td></tr>`).join('')}
+                ${releases.map((item) => `<tr><td>${escapeHtml(item.artwork || 'Cover')}</td><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.artist || item.primaryArtist || '')}</td><td>${escapeHtml(item.releaseDate || '')}</td><td>${escapeHtml(item.genre || '')}</td><td>${statusBadge(item.status)}</td><td>${formatCurrency(item.revenue || 0)}</td><td>${Number(item.streams || 0).toLocaleString()}</td><td><a href="${studioPath('dashboard/analytics')}">View</a></td></tr>`).join('')}
               </tbody>
             </table>
           </div>
@@ -1161,7 +1330,7 @@
     const balances = data.balances || [];
     return `
       <section class="page-shell">
-        <div class="page-toolbar"><div><p class="eyebrow">Wallet</p><h3>Balance</h3></div><a class="primary-button" href="/dashboard/withdrawals">Request payout</a></div>
+        <div class="page-toolbar"><div><p class="eyebrow">Wallet</p><h3>Balance</h3></div><a class="primary-button" href="${studioPath('dashboard/withdrawals')}">Request payout</a></div>
         <div class="kpi-grid">${balances.map((item) => `<article class="kpi-card"><p class="label">${escapeHtml(item.label)}</p><h4>${escapeHtml(item.value)}</h4><span class="muted">${escapeHtml(item.note)}</span></article>`).join('')}</div>
         <article class="panel-card"><div class="panel-head"><h4>Ledger</h4><span class="pill">History</span></div><ul class="stack-list">${(data.ledger || []).map((entry) => `<li><strong>${escapeHtml(entry.title)}</strong><br><span class="muted">${escapeHtml(entry.detail)}</span></li>`).join('')}</ul></article>
       </section>
@@ -1260,11 +1429,11 @@
 
   function renderProfile(data) {
     const persisted = loadPaymentMethods();
-    const methods = persisted || data.paymentMethods || [
+    const methods = (persisted || data.paymentMethods || [
       { method: 'Bank Transfer', account: 'HSBC • 01234567', default: true },
       { method: 'Mobile Money', account: 'MTN • 055 123 4567', default: false },
       { method: 'PayPal', account: 'ava@msa.company', default: false }
-    ];
+    ]).map(normalizePaymentMethod);
     return `
       <section class="page-shell">
         <div class="content-grid two-up">
@@ -1695,8 +1864,8 @@
           const formData = new FormData(withdrawalForm);
           const amount = Number(formData.get('amount')) || 0;
           try {
-            const resp = await fetch('/api/withdrawals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount }) });
-            const json = await resp.json();
+            const resp = await apiFetch('/api/withdrawals', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount }) });
+            const json = resp;
             if (json && json.withdrawal) {
               const status = document.getElementById('withdrawalStatus');
               if (status) status.textContent = 'Withdrawal request captured and routed for approval.';
@@ -1724,11 +1893,11 @@
         // send to server
         (async () => {
           try {
-            const resp = await fetch('/api/profile/payment-methods', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'add', method, account, default: isDefault }) });
-            const json = await resp.json();
-            if (json && json.methods) {
-              if (currentPageData) currentPageData.paymentMethods = json.methods;
-              savePaymentMethods(json.methods);
+            const json = await apiFetch('/api/profile/payment-methods', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: method, accountName: account, isDefault }) });
+            const nextMethods = json.paymentMethods || (json.paymentMethod ? [...(currentPageData?.paymentMethods || []), json.paymentMethod] : null);
+            if (nextMethods) {
+              if (currentPageData) currentPageData.paymentMethods = nextMethods;
+              savePaymentMethods(nextMethods);
               pageContent.innerHTML = renderProfile(currentPageData || {});
               bindPageInteractions('profile');
             }
@@ -1756,11 +1925,16 @@
           if (action === 'delete' || action === 'default') {
             (async () => {
               try {
-                const resp = await fetch('/api/profile/payment-methods', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(action === 'delete' ? { action: 'delete', index } : { action: 'set-default', index }) });
-                const json = await resp.json();
-                if (json && json.methods) {
-                  if (currentPageData) currentPageData.paymentMethods = json.methods;
-                  savePaymentMethods(json.methods);
+                const methodId = methods[index]?._id || methods[index]?.id || '';
+                if (!methodId) throw new Error('Payment method id missing');
+                const respPath = `/api/profile/payment-methods/${methodId}`;
+                const json = await apiFetch(respPath, { method: action === 'delete' ? 'DELETE' : 'PUT', headers: { 'Content-Type': 'application/json' }, body: action === 'delete' ? undefined : JSON.stringify({ isDefault: true }) });
+                const nextMethods = action === 'delete'
+                  ? methods.filter((_, itemIndex) => itemIndex !== index)
+                  : methods.map((method, itemIndex) => ({ ...method, isDefault: itemIndex === index, default: itemIndex === index }));
+                if (json) {
+                  if (currentPageData) currentPageData.paymentMethods = nextMethods;
+                  savePaymentMethods(nextMethods);
                   pageContent.innerHTML = renderProfile(currentPageData || {});
                   bindPageInteractions('profile');
                   return;
@@ -1793,6 +1967,10 @@
   }
 
   async function init() {
+    if (!getAccessToken()) {
+      redirectToLogin();
+      return;
+    }
     setActiveLink();
     bindShellEvents();
     if (pageContent) {

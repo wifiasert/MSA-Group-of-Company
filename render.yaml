@@ -1,10 +1,25 @@
 services:
   - type: web
+    name: msa-website
+    runtime: static
+    buildCommand: mkdir -p public-dist && rsync -a --delete --exclude '.git' --exclude '.github' --exclude '.agents' --exclude '.codex' --exclude '.history' --exclude '.venv' --exclude 'public-dist' --exclude 'music/backend' --exclude 'MSA_D/node_modules' ./ public-dist/
+    staticPublishPath: public-dist
+    autoDeploy: true
+    routes:
+      - type: rewrite
+        source: /MSA_D/dashboard/*
+        destination: /MSA_D/dashboard/index.html
+      - type: rewrite
+        source: /*
+        destination: /404.html
+
+  - type: web
     name: msa-tune-studio-backend
-    env: node
+    runtime: node
     rootDirectory: music/backend
     buildCommand: npm install
     startCommand: npm start
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
@@ -15,20 +30,4 @@ services:
       - key: MONGO_URI
         sync: false
       - key: CORS_ORIGIN
-        value: https://msagroupofcompanies.online
-
-  - type: web
-    name: msa-tune-studio-panel
-    env: node
-    rootDirectory: MSA_D
-    buildCommand: npm install
-    startCommand: npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3000
-      - key: BACKEND_URL
-        value: https://msa-tune-studio-backend.onrender.com
-      - key: JWT_SECRET
-        sync: false
+        value: https://msagroupofcompanies.online,https://msa-website.onrender.com

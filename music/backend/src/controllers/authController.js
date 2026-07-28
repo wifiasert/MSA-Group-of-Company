@@ -14,8 +14,10 @@ const register = async (req, res) => {
   }
 
   const { name, email, password, role } = req.body;
-  // If Mongoose isn't connected, use in-memory store
   if (mongoose.connection.readyState !== 1) {
+    if (process.env.NODE_ENV === 'production') {
+      return errorResponse(res, 'Database connection unavailable', 503);
+    }
     if (getUserByEmail(email)) {
       return errorResponse(res, 'Email address already in use', 409);
     }
@@ -44,8 +46,10 @@ const login = async (req, res) => {
   }
 
   const { email, password } = req.body;
-  // If Mongoose isn't connected, use in-memory store
   if (mongoose.connection.readyState !== 1) {
+    if (process.env.NODE_ENV === 'production') {
+      return errorResponse(res, 'Database connection unavailable', 503);
+    }
     const user = getUserByEmail(email);
     if (!user) {
       return errorResponse(res, 'Invalid email or password', 401);
@@ -82,6 +86,9 @@ const refreshToken = async (req, res) => {
     const payload = jwt.verify(refreshToken, process.env.JWT_SECRET);
     let user;
     if (mongoose.connection.readyState !== 1) {
+      if (process.env.NODE_ENV === 'production') {
+        return errorResponse(res, 'Database connection unavailable', 503);
+      }
       user = getUserById(payload.sub);
       if (!user) return errorResponse(res, 'Invalid refresh token', 401);
       const tokens = createAuthTokens(user);

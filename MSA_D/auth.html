@@ -55,6 +55,24 @@
     <div id="authMessage" class="auth-feedback"></div>
   </main>
   <script>
+    const API_BASE_URL = 'https://msa-tune-studio-backend.onrender.com';
+    const AUTH_STORAGE_KEY = 'msa_tune_auth';
+
+    function apiUrl(path) {
+      return `${API_BASE_URL}${path}`;
+    }
+
+    function storeAuthSession(payload) {
+      const data = payload?.data || payload || {};
+      if (!data.tokens?.accessToken) return false;
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+        user: data.user,
+        tokens: data.tokens,
+        savedAt: Date.now()
+      }));
+      return true;
+    }
+
     const authMessage = document.getElementById('authMessage');
 
     function setMessage(message, isError = false) {
@@ -63,11 +81,10 @@
     }
 
     async function postJson(url, body) {
-      const response = await fetch(url, {
+      const response = await fetch(apiUrl(url), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        credentials: 'include'
+        body: JSON.stringify(body)
       });
       const payload = await response.json().catch(() => null);
       return { status: response.status, ok: response.ok, payload };
@@ -101,6 +118,10 @@
           setMessage(result.payload?.message || 'Login failed', true);
           return;
         }
+        if (!storeAuthSession(result.payload)) {
+          setMessage('The authentication service did not return a valid session.', true);
+          return;
+        }
         window.location.replace('/MSA_D/dashboard/');
       });
     }
@@ -113,6 +134,10 @@
         const result = await postJson('/api/auth/register', values);
         if (!result.ok || result.status >= 400) {
           setMessage(result.payload?.message || 'Registration failed', true);
+          return;
+        }
+        if (!storeAuthSession(result.payload)) {
+          setMessage('The authentication service did not return a valid session.', true);
           return;
         }
         window.location.replace('/MSA_D/dashboard/');

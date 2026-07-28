@@ -1,4 +1,4 @@
-name: Deploy MSA Tune Studio
+name: Deploy MSA Website
 
 on:
   push:
@@ -6,12 +6,17 @@ on:
       - main
 
 jobs:
-  deploy:
+  render-deploy-hooks:
     runs-on: ubuntu-latest
     steps:
+      - name: Require Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          test -n "$RENDER_DEPLOY_HOOK_URL"
+
       - name: Trigger Render deploy hook
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-        if: ${{ env.RENDER_DEPLOY_HOOK_URL != '' }}
         run: |
           curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
