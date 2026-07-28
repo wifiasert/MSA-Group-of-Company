@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MSA Tune Studio | Login</title>
+  <meta name="description" content="Sign in to MSA Tune Studio with a polished, secure authentication experience.">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="auth-body">
+  <main class="auth-shell">
+    <section class="auth-card" aria-labelledby="login-title">
+      <div class="auth-brand">
+        <div class="brand-mark">MS</div>
+        <div>
+          <p class="eyebrow">Secure access</p>
+          <h1>MSA Tune Studio</h1>
+        </div>
+      </div>
+
+      <div class="auth-copy">
+        <h2 id="login-title">Welcome back</h2>
+        <p>Sign in to continue to your studio workspace with confidence and clarity.</p>
+      </div>
+
+      <form id="loginForm" class="auth-form" novalidate>
+        <div class="field-group">
+          <label for="loginEmail">Email address</label>
+          <input id="loginEmail" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+          <p class="inline-error" data-error-for="email"></p>
+        </div>
+
+        <div class="field-group">
+          <label for="loginPassword">Password</label>
+          <div class="password-input">
+            <input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+            <button type="button" class="password-toggle" data-toggle="loginPassword">Show</button>
+          </div>
+          <p class="inline-error" data-error-for="password"></p>
+        </div>
+
+        <div class="auth-options">
+          <label class="checkbox-row" for="rememberMe">
+            <input id="rememberMe" type="checkbox">
+            <span>Remember me</span>
+          </label>
+          <button type="button" id="forgotPasswordLink" class="link-button">Forgot password?</button>
+        </div>
+
+        <button id="loginButton" class="primary-button auth-submit-button" type="submit">
+          <span class="button-label">Sign in</span>
+          <span class="spinner" hidden></span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="/music/MSA_D/register.html">Create one</a></p>
+      </div>
+
+      <div id="loginMessage" class="auth-message" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const button = document.getElementById('loginButton');
+    const messageBox = document.getElementById('loginMessage');
+    const rememberMe = document.getElementById('rememberMe');
+    const loginEmail = document.getElementById('loginEmail');
+
+    function setInlineError(fieldName, text) {
+      const target = document.querySelector(`[data-error-for="${fieldName}"]`);
+      if (target) target.textContent = text || '';
+    }
+
+    function clearInlineErrors() {
+      document.querySelectorAll('.inline-error').forEach((item) => {
+        item.textContent = '';
+      });
+    }
+
+    function showMessage(text, type = 'info') {
+      messageBox.textContent = text;
+      messageBox.className = `auth-message ${type}`;
+    }
+
+    function setBusy(isBusy) {
+      button.disabled = isBusy;
+      button.classList.toggle('is-loading', isBusy);
+      const label = button.querySelector('.button-label');
+      const spinner = button.querySelector('.spinner');
+      if (label) label.textContent = isBusy ? 'Signing in...' : 'Sign in';
+      if (spinner) spinner.hidden = !isBusy;
+    }
+
+    document.querySelectorAll('.password-toggle').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const input = document.getElementById(toggle.getAttribute('data-toggle'));
+        if (!input) return;
+        const isSecret = input.type === 'password';
+        input.type = isSecret ? 'text' : 'password';
+        toggle.textContent = isSecret ? 'Hide' : 'Show';
+      });
+    });
+
+    document.getElementById('forgotPasswordLink').addEventListener('click', () => {
+      showMessage('Password reset is being prepared for a future release. Please reach out to support for help.', 'info');
+    });
+
+    const savedEmail = localStorage.getItem('msa_tune_login_email');
+    if (savedEmail) {
+      loginEmail.value = savedEmail;
+      rememberMe.checked = true;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('registered') === '1') {
+      showMessage('Account created successfully. Please sign in to continue.', 'success');
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearInlineErrors();
+      showMessage('', 'info');
+
+      const values = {
+        email: form.email.value.trim(),
+        password: form.password.value
+      };
+
+      let hasError = false;
+      if (!values.email) {
+        setInlineError('email', 'Email is required.');
+        hasError = true;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+        setInlineError('email', 'Please enter a valid email address.');
+        hasError = true;
+      }
+
+      if (!values.password) {
+        setInlineError('password', 'Password is required.');
+        hasError = true;
+      }
+
+      if (hasError) {
+        showMessage('Please fix the highlighted fields before continuing.', 'error');
+        return;
+      }
+
+      setBusy(true);
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(values),
+          credentials: 'include'
+        });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) {
+          const message = payload?.message || payload?.error || 'Login failed. Please try again.';
+          showMessage(message, 'error');
+          setInlineError('email', message);
+          setBusy(false);
+          return;
+        }
+
+        if (rememberMe.checked) {
+          localStorage.setItem('msa_tune_login_email', values.email);
+        } else {
+          localStorage.removeItem('msa_tune_login_email');
+        }
+
+        window.location.replace('/music/MSA_D/dashboard/');
+      } catch (error) {
+        showMessage('We could not reach the authentication service right now.', 'error');
+      } finally {
+        setBusy(false);
+      }
+    });
+  </script>
+</body>
+</html>
