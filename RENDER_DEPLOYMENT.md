@@ -5,9 +5,9 @@
 This repository contains two primary Node.js services:
 
 - `backend/`: Express API server for authentication, dashboard, releases, withdrawals, support, and profile workflows.
-- `MSA_D/`: Static dashboard application with a Node HTTP proxy (`server.js`) for backend API calls.
+- `dashboard/`: Static dashboard application with a Node HTTP proxy (`server.js`) for backend API calls.
 
-The public website also includes a legacy distribution landing page at `music/distribution/index.html` that now redirects to `/MSA_D/`.
+The public website also includes a legacy distribution landing page at `music/distribution/index.html` that now redirects to `/dashboard/`.
 
 ## Recommended Render services
 
@@ -29,15 +29,15 @@ The public website also includes a legacy distribution landing page at `music/di
 - `NODE_ENV` = `production`
 
 Optional:
-- `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`, `DB_PORT` if using separate connection logic in `MSA_D/config.js`
+- `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`, `DB_PORT` if using separate connection logic in `dashboard/config.js`
 
 ### 2. Frontend / dashboard service
 
 - Type: Web Service
-- Environment: `MSA_D`
+- Environment: `dashboard`
 - Build command: `npm install`
 - Start command: `npm start`
-- Root directory: `MSA_D`
+- Root directory: `dashboard`
 - Instance type: `Free` or `Starter`
 
 #### Required environment variables
@@ -49,11 +49,11 @@ Optional:
 
 ### 3. Optional metadata and static site updates
 
-The main site for `music/distribution/` now redirects to the app at `/MSA_D/`.
+The main site for `music/distribution/` now redirects to the app at `/dashboard/`.
 
 ## Notes
 
-- `MSA_D/server.js` parses the browser cookie named `msa_auth` and injects it as a `Authorization: Bearer <token>` header to proxied API calls.
+- `dashboard/server.js` parses the browser cookie named `msa_auth` and injects it as a `Authorization: Bearer <token>` header to proxied API calls.
 - The dashboard gate redirects unauthenticated requests to `/auth.html`.
 - Login/register responses from the backend now set the `msa_auth` cookie.
 - `JWT_SECRET` must be consistent across frontend and backend for server-side token verification.
@@ -67,9 +67,9 @@ The main site for `music/distribution/` now redirects to the app at `/MSA_D/`.
    BACKEND_URL=https://<your-backend>.onrender.com CORS_ORIGIN=https://<your-frontend>.onrender.com npm start
    ```
 
-2. Start frontend from `MSA_D/`:
+2. Start frontend from `dashboard/`:
    ```bash
-   cd MSA_D
+   cd dashboard
    npm install
    BACKEND_URL=https://<your-backend>.onrender.com npm start
    ```
