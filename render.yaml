@@ -20,7 +20,7 @@ services:
   - type: web
     name: msa-tune-studio-panel
     env: node
-    rootDirectory: music/MSA_D
+    rootDirectory: MSA_D
     buildCommand: npm install
     startCommand: npm start
     envVars:

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1400, initial-scale=1">
+  <title>Dashboard | MSA TUNE STUDIO</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body data-page="dashboard">
+  <div class="studio-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-block">
+        <div class="brand-mark">MSA</div>
+        <div><p class="eyebrow">MSA TUNE STUDIO</p><h1>MSA TUNE STUDIO</h1></div>
+      </div>
+      <nav class="sidebar-nav" aria-label="Studio navigation">
+        <a class="nav-link active" href="/MSA_D/dashboard/">Dashboard</a>
+        <a class="nav-link" href="/MSA_D/dashboard/upload/">Upload Music</a>
+        <a class="nav-link" href="/MSA_D/dashboard/releases/">Releases</a>
+        <a class="nav-link" href="/MSA_D/dashboard/analytics/">Analytics</a>
+        <a class="nav-link" href="/MSA_D/dashboard/revenue/">Revenue &amp; Payouts</a>
+        <a class="nav-link" href="/MSA_D/dashboard/support/">Support</a>
+        <a class="nav-link" href="/MSA_D/dashboard/messages/">Messages</a>
+        <a class="nav-link" href="/MSA_D/dashboard/notifications/">Notifications</a>
+        <a class="nav-link" href="/MSA_D/dashboard/profile/">Profile</a>
+        <a class="nav-link" href="/MSA_D/dashboard/settings/">Settings</a>
+        <a class="nav-link" href="/MSA_D/dashboard/help/">Help Center</a>
+      </nav>
+      <a class="nav-link back-link" href="https://msagroupofcompanies.online/">← Back to Main Website</a>
+    </aside>
+    <main class="content-panel">
+      <header class="topbar">
+        <div><p class="eyebrow">Artist operations</p><h2>Dashboard</h2><p class="muted">Your current release, revenue, and activity snapshot.</p></div>
+        <div class="topbar-actions"><button class="ghost-button" id="themeToggle" type="button">☀︎</button><button class="primary-button" id="mobileToggle" type="button">Menu</button></div>
+      </header>
+      
+      <div class="page-content">
+        <section class="stats-grid">
+          <article class="stat-card"><p class="label">Current Balance</p><h3>$21,340</h3><p class="muted">Live artist wallet</p></article>
+          <article class="stat-card"><p class="label">Revenue</p><h3>$3,800</h3><p class="muted">Recent earnings</p></article>
+          <article class="stat-card"><p class="label">Monthly Revenue</p><h3>$1,368</h3><p class="muted">Rolling month</p></article>
+          <article class="stat-card"><p class="label">Streams</p><h3>94,000</h3><p class="muted">Across all releases</p></article>
+        </section>
+        <section class="grid-layout">
+          <article class="panel-card"><div class="panel-head"><h4>Latest Uploads</h4><a href="/MSA_D/dashboard/upload/">Open upload</a></div><ul class="stack-list"><li><strong>Midnight Echo</strong><br><span class="muted">Approved · 94k streams</span></li><li><strong>Neon Skyline</strong><br><span class="muted">Draft · Ready to submit</span></li></ul></article>
+          <article class="panel-card"><div class="panel-head"><h4>Recent Activity</h4><a href="/MSA_D/dashboard/notifications/">View all</a></div><ul class="stack-list"><li><strong>Submission received</strong><br><span class="muted">Midnight Echo is now under review.</span></li><li><strong>Withdrawal request received</strong><br><span class="muted">A new payout is awaiting admin approval.</span></li></ul></article>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="../app.js"></script>
+  <script src="../lib/platform.js"></script>
+</body>
+</html>

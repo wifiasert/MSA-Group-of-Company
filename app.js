@@ -1,4 +1,4 @@
-﻿const services = [
+const services = [
   ["Website Development", "Fast, elegant websites, marketing pages, and product experiences that feel premium at every screen size.", "$499+"],
   ["Brand Identity", "Visual systems, logos, motion, launch kits, and campaign design that feel polished and deliberate.", "$300+"],
   ["Music Production", "Recording, mixing, mastering, release support, and creative direction for serious artists.", "$120+"],
