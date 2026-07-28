@@ -415,9 +415,20 @@ function serveFile(res, filePath) {
   });
 }
 
+function normalizeRoutePathname(pathname) {
+  const nestedRoot = '/music/MSA_D';
+  if (pathname === nestedRoot || pathname === `${nestedRoot}/`) {
+    return '/';
+  }
+  if (pathname.startsWith(`${nestedRoot}/`)) {
+    return pathname.slice(nestedRoot.length) || '/';
+  }
+  return pathname;
+}
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  const apiPath = url.pathname;
+  const apiPath = normalizeRoutePathname(url.pathname);
 
   if (apiPath.startsWith('/api/')) {
     if (apiPath === '/api/health') {
@@ -475,7 +486,7 @@ const server = http.createServer((req, res) => {
     });
   }
 
-  const pageRoute = url.pathname === '/' ? '/' : url.pathname;
+  const pageRoute = apiPath === '/' ? '/' : apiPath;
   const pathname = pageRoute === '/' ? '/index.html' : pageRoute;
   let safePath = path.normalize(pathname).replace(/^\/+/, '');
   let filePath = path.join(rootDir, safePath);
@@ -486,19 +497,19 @@ const server = http.createServer((req, res) => {
 
   if (isAuthPage && verifyAuthToken(requestAuthToken)) {
     res.writeHead(302, {
-      Location: '/dashboard',
+      Location: '/music/MSA_D/dashboard/',
       'Content-Type': 'text/html; charset=utf-8'
     });
-    res.end('<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/dashboard"></head><body>Redirecting to dashboard...</body></html>');
+    res.end('<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/music/MSA_D/dashboard/"></head><body>Redirecting to dashboard...</body></html>');
     return;
   }
 
   if (isDashboardRoute && !verifyAuthToken(requestAuthToken)) {
     res.writeHead(302, {
-      Location: '/auth.html',
+      Location: '/music/MSA_D/auth.html',
       'Content-Type': 'text/html; charset=utf-8'
     });
-    res.end('<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/auth.html"></head><body>Redirecting to login...</body></html>');
+    res.end('<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/music/MSA_D/auth.html"></head><body>Redirecting to login...</body></html>');
     return;
   }
 
