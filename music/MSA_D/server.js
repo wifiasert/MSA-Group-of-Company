@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 const rootDir = __dirname;
 const port = Number(process.env.PORT || 3000);
-const PUBLIC_BASE_PATH = process.env.PUBLIC_BASE_PATH || '/MSA_D';
+const PUBLIC_BASE_PATH = process.env.PUBLIC_BASE_PATH || '/music/MSA_D';
 const PUBLIC_BASE_PATHS = Array.from(new Set(['/MSA_D', '/music/MSA_D', PUBLIC_BASE_PATH]))
   .filter(Boolean)
   .sort((a, b) => b.length - a.length);

@@ -75,7 +75,7 @@ function renderSoftware() {
       <h3>${item.name}</h3>
       <p>${item.category}</p>
       <p><strong>Starting at:</strong> $${item.price}</p>
-      <a class="secondary-button" href="${resolveSitePath("/software/store/")}">View product</a>
+      <a class="secondary-button" href="${resolveSitePath("/store/")}">View product</a>
     </article>
   `).join("");
 }

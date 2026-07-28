@@ -2,13 +2,16 @@ services:
   - type: web
     name: msa-website
     runtime: static
-    buildCommand: mkdir -p public-dist && rsync -a --delete --exclude '.git' --exclude '.github' --exclude '.agents' --exclude '.codex' --exclude '.history' --exclude '.venv' --exclude 'public-dist' --exclude 'music/backend' --exclude 'MSA_D/node_modules' ./ public-dist/
+    buildCommand: mkdir -p public-dist && rsync -a --delete --exclude '.git' --exclude '.github' --exclude '.agents' --exclude '.history' --exclude '.venv' --exclude 'public-dist' --exclude 'music/backend' --exclude 'MSA_D/node_modules' ./ public-dist/
     staticPublishPath: public-dist
     autoDeploy: true
     routes:
       - type: rewrite
         source: /MSA_D/dashboard/*
         destination: /MSA_D/dashboard/index.html
+      - type: rewrite
+        source: /music/MSA_D/dashboard/*
+        destination: /music/MSA_D/dashboard/index.html
       - type: rewrite
         source: /*
         destination: /404.html
