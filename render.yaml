@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: msa-tune-studio-backend
+    env: node
+    rootDirectory: music/backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: JWT_SECRET
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://msagroupofcompanies.online
+
+  - type: web
+    name: msa-tune-studio-panel
+    env: node
+    rootDirectory: music/MSA_D
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: BACKEND_URL
+        value: https://msa-tune-studio-backend.onrender.com
+      - key: JWT_SECRET
+        sync: false

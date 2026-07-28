@@ -9,6 +9,12 @@ This repository contains two primary Node.js services:
 
 The public website also includes a legacy distribution landing page at `music/distribution/index.html` that now redirects to `/MSA_D/`.
 
+## GitHub → Render deployment sync
+
+A GitHub Actions workflow has been added at `.github/workflows/deploy-render.yml`. It triggers on pushes to `main` and calls the Render deploy hook from the repository secret `RENDER_DEPLOY_HOOK_URL`.
+
+To enable live deployments, add the Render deploy hook URL to GitHub repository secrets as `RENDER_DEPLOY_HOOK_URL`.
+
 ## Recommended Render services
 
 ### 1. Backend service

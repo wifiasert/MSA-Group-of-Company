@@ -6,9 +6,13 @@ const jwt = require('jsonwebtoken');
 
 const rootDir = __dirname;
 const port = Number(process.env.PORT || 3000);
-const BACKEND_URL = process.env.BACKEND_URL || process.env.BACKEND || 'http://localhost:4000';
-if (!process.env.BACKEND_URL) {
-  console.warn('BACKEND_URL not set — defaulting to http://localhost:4000 for local testing. Set BACKEND_URL to your backend URL in production.');
+const PUBLIC_BASE_PATH = process.env.PUBLIC_BASE_PATH || '/music/MSA_D';
+const fallbackBackendUrl = process.env.NODE_ENV === 'production'
+  ? 'https://msa-tune-studio-backend.onrender.com'
+  : 'http://127.0.0.1:4000';
+const BACKEND_URL = process.env.BACKEND_URL || process.env.BACKEND || fallbackBackendUrl;
+if (!process.env.BACKEND_URL && !process.env.BACKEND) {
+  console.warn(`BACKEND_URL not set — using ${BACKEND_URL}`);
 }
 const backendUrl = new URL(BACKEND_URL);
 const config = {
@@ -426,7 +430,32 @@ function normalizeRoutePathname(pathname) {
   return pathname;
 }
 
-const server = http.createServer((req, res) => {
+function buildPublicPath(pathname, targetPath) {
+  if (!targetPath || targetPath.startsWith('http://') || targetPath.startsWith('https://')) {
+    return targetPath;
+  }
+  const normalizedTarget = targetPath.replace(/^\.\//, '').replace(/^\//, '');
+  if (!normalizedTarget) {
+    return PUBLIC_BASE_PATH;
+  }
+  const normalizedPath = normalizeRoutePathname(pathname || '/');
+  if (normalizedTarget === 'index.html' || normalizedTarget === '/') {
+    return PUBLIC_BASE_PATH;
+  }
+  if (normalizedTarget.startsWith('dashboard/')) {
+    return `${PUBLIC_BASE_PATH}/${normalizedTarget}`;
+  }
+  if (normalizedTarget.startsWith('login.') || normalizedTarget.startsWith('register.') || normalizedTarget.startsWith('auth.')) {
+    return `${PUBLIC_BASE_PATH}/${normalizedTarget}`;
+  }
+  if (normalizedTarget.startsWith('dashboard')) {
+    return `${PUBLIC_BASE_PATH}/${normalizedTarget}`;
+  }
+  return `${PUBLIC_BASE_PATH}/${normalizedTarget}`;
+}
+
+if (require.main === module) {
+  const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const apiPath = normalizeRoutePathname(url.pathname);
 
@@ -494,33 +523,36 @@ const server = http.createServer((req, res) => {
   const requestAuthToken = getAuthCookie(req);
   const hasValidSession = verifyAuthToken(requestAuthToken);
   const isDashboardRoute = pathname === '/dashboard' || pathname === '/dashboard/' || pathname.startsWith('/dashboard/');
-  const isAuthPage = pathname === '/auth.html';
+  const isAuthPage = pathname === '/login.html' || pathname === '/register.html' || pathname === '/auth.html';
   const isRootEntry = pathname === '/index.html' || pathname === '/' || pathname === '/music/MSA_D' || pathname === '/music/MSA_D/';
 
   if (isRootEntry) {
+    const loginTarget = buildPublicPath(pathname, 'login.html');
     res.writeHead(302, {
-      Location: '/music/MSA_D/auth.html',
+      Location: loginTarget,
       'Content-Type': 'text/html; charset=utf-8'
     });
-    res.end('<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/music/MSA_D/auth.html"></head><body>Redirecting to secure login...</body></html>');
+    res.end(`<!doctype html><html><head><meta http-equiv="refresh" content="0;url=${loginTarget}"></head><body>Redirecting to secure login...</body></html>`);
     return;
   }
 
   if (isAuthPage && hasValidSession) {
+    const dashboardTarget = buildPublicPath(pathname, 'dashboard/');
     res.writeHead(302, {
-      Location: '/music/MSA_D/dashboard/',
+      Location: dashboardTarget,
       'Content-Type': 'text/html; charset=utf-8'
     });
-    res.end('<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/music/MSA_D/dashboard/"></head><body>Redirecting to dashboard...</body></html>');
+    res.end(`<!doctype html><html><head><meta http-equiv="refresh" content="0;url=${dashboardTarget}"></head><body>Redirecting to dashboard...</body></html>`);
     return;
   }
 
   if (isDashboardRoute && !hasValidSession) {
+    const loginTarget = buildPublicPath(pathname, 'login.html');
     res.writeHead(302, {
-      Location: '/music/MSA_D/auth.html',
+      Location: loginTarget,
       'Content-Type': 'text/html; charset=utf-8'
     });
-    res.end('<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/music/MSA_D/auth.html"></head><body>Redirecting to login...</body></html>');
+    res.end(`<!doctype html><html><head><meta http-equiv="refresh" content="0;url=${loginTarget}"></head><body>Redirecting to login...</body></html>`);
     return;
   }
 
@@ -562,3 +594,9 @@ server.on('error', (error) => {
 server.listen(currentPort, () => {
   console.log(`MSA TUNE STUDIO server running on port ${currentPort}`);
 });
+}
+
+module.exports = {
+  normalizeRoutePathname,
+  buildPublicPath
+};
